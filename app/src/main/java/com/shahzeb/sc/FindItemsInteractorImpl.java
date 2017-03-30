@@ -23,7 +23,7 @@ public class FindItemsInteractorImpl implements FindItemsInteractor {
                         if (response.body() != null && response.code() == HttpURLConnection.HTTP_OK) {
                             listener.onFinished(response.body());
                         } else {
-                            listener.onFailed(Resources.getSystem().getString(R.string.error_network));
+                            listener.onFailed(SCApplication.getContext().getString(R.string.error_network));
                         }
                     }
 
@@ -34,7 +34,7 @@ public class FindItemsInteractorImpl implements FindItemsInteractor {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        listener.onFailed(Resources.getSystem().getString(R.string.error_network));
+                        listener.onFailed(SCApplication.getContext().getString(R.string.error_network));
                     }
                 });
     }

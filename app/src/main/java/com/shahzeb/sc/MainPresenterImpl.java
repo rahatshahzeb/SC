@@ -45,6 +45,7 @@ public class MainPresenterImpl implements MainPresenter, FindItemsInteractor.OnF
     public void onFailed(String message) {
         if (mainView != null) {
             mainView.hideProgress();
+            mainView.callFailed();
             mainView.showMessage(message);
         }
     }

@@ -12,4 +12,6 @@ public interface MainView {
     void setItems(SearchImageResponse searchImageResponse);
 
     void showMessage(String message);
+
+    void callFailed();
 }

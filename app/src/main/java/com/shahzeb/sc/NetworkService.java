@@ -11,12 +11,12 @@ import retrofit2.http.Query;
 
 public class NetworkService {
 
-    private static String BASE_URL = "https://api.gettyimages.com:443/v3/search/images";
+    private static String BASE_URL = "https://api.gettyimages.com:443/v3/";
     public final static String API_KEY = "4x3mqfykgft2uj2zynnw4b9w"; //cp2dhxm3jtcv4tqvtunttqza
 
     public interface SCNetworkAPI {
 
-        @GET()
+        @GET("search/images")
         Call<SearchImageResponse> listImages(
                 @Header("Api-Key") String apiKey,
                 @Query("page") int page,
