@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -30,9 +31,15 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
     private MainPresenter presenter;
 
     private int page = 1;
+    private boolean mLoading = true;
+    private int mPastVisiblesItems;
+    private int mVisibleItemCount;
+    private int mTotalItemCount;
+
+    private RecyclerView.OnScrollListener recyclerViewScrollListener;
 
     private RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private LinearLayoutManager layoutManager;
     private List<Image> imageList = new ArrayList<>();
 
     @Override
@@ -45,12 +52,38 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
         presenter = new MainPresenterImpl(this, new FindItemsInteractorImpl());
 
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        setScrollListener();
 
         recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
         swipeRefreshLayout.setOnRefreshListener(this);
+        recyclerView.addOnScrollListener(recyclerViewScrollListener);
+    }
+
+    public void setScrollListener() {
+        recyclerViewScrollListener = new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) { //check for scroll down
+                    mVisibleItemCount = layoutManager.getChildCount();
+                    mTotalItemCount = layoutManager.getItemCount();
+                    mPastVisiblesItems = layoutManager.findFirstVisibleItemPosition();
+                    if (mLoading) {
+                        if ((mVisibleItemCount + mPastVisiblesItems) >= mTotalItemCount) {
+                            mLoading = false;
+
+                            presenter.onResume(page, SCConstants.PAGE_SIZE, "");
+
+                            populateDummyContent();
+                            setAdapter();
+                        }
+                    }
+                }
+            }
+        };
     }
 
     public void setAdapter() {

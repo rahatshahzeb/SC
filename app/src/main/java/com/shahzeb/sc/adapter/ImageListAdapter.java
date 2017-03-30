@@ -9,7 +9,8 @@ import android.widget.TextView;
 
 import com.shahzeb.sc.R;
 import com.shahzeb.sc.model.Response.Image;
-import java.util.ArrayList;
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -61,6 +62,11 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
     @Override
     public void onBindViewHolder(ImagesViewHolder holder, int position) {
 
+//        Picasso.with(ctx)
+//                .load(imageList.get(position).display_sizes.get(0).uri)
+//                .resize(512, 512)
+//                .centerCrop()
+//                .into(holder.image);
         holder.tvId.setText(imageList.get(position).id);
         holder.tvTitle.setText(imageList.get(position).title);
         holder.tvCaption.setText(imageList.get(position).caption);
