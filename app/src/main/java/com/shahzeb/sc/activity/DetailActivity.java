@@ -1,10 +1,12 @@
-package com.shahzeb.sc;
+package com.shahzeb.sc.activity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.shahzeb.sc.R;
+import com.shahzeb.sc.SCConstants;
 import com.shahzeb.sc.model.Response.Image;
 import com.shahzeb.sc.utils.SCUtil;
 import com.squareup.picasso.Picasso;
@@ -34,13 +36,16 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         if (image.display_sizes != null) {
-            Picasso.with(this)
-                    .load(image.display_sizes.get(0).uri)
-                    .resize(SCUtil.getDeviceWidth(this), SCUtil.getDeviceWidth(this))
-                    .centerCrop()
-                    .into(imageView);
+            String url = image.display_sizes.get(0).uri;
+            String trimmedUrl = url.substring(0, url.indexOf("?"));
+                    Picasso.with(this)
+                            .load(trimmedUrl)
+                            .placeholder(R.drawable.blurred_background)
+                            .resize(SCUtil.getDeviceWidth(this), SCUtil.getDeviceWidth(this))
+                            .centerCrop()
+                            .into(imageView);
         } else {
-            imageView.setImageResource(R.mipmap.ic_launcher);
+            imageView.setImageResource(R.drawable.blurred_background);
         }
 
         tvTitle.setText(image.title);

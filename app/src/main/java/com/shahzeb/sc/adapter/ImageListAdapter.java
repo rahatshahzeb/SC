@@ -70,13 +70,16 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.Imag
     public void onBindViewHolder(ImagesViewHolder holder, int position) {
 
         if (imageList.get(position).display_sizes != null) {
+            String url = imageList.get(position).display_sizes.get(0).uri;
+            String trimmedUrl = url.substring(0, url.indexOf("?"));
             Picasso.with(ctx)
-                    .load(imageList.get(position).display_sizes.get(0).uri)
+                    .load(trimmedUrl)
+                    .placeholder(R.drawable.blurred_background)
                     .resize(SCUtil.getDeviceWidth(ctx), SCUtil.getDeviceWidth(ctx)/2)
                     .centerCrop()
                     .into(holder.image);
         } else {
-            holder.image.setImageResource(R.mipmap.ic_launcher);
+            holder.image.setImageResource(R.drawable.blurred_background);
         }
         holder.tvId.setText(imageList.get(position).id);
         holder.tvTitle.setText(imageList.get(position).title);

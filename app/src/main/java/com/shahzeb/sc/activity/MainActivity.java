@@ -1,4 +1,4 @@
-package com.shahzeb.sc;
+package com.shahzeb.sc.activity;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -16,6 +16,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.shahzeb.sc.BaseActivity;
+import com.shahzeb.sc.FindItemsInteractorImpl;
+import com.shahzeb.sc.MainPresenter;
+import com.shahzeb.sc.MainPresenterImpl;
+import com.shahzeb.sc.MainView;
+import com.shahzeb.sc.R;
+import com.shahzeb.sc.SCConstants;
 import com.shahzeb.sc.adapter.ImageListAdapter;
 import com.shahzeb.sc.model.Response.Image;
 import com.shahzeb.sc.model.Response.SearchImageResponse;
@@ -236,7 +243,7 @@ public class MainActivity extends BaseActivity implements MainView,
         Intent intent = new Intent(this, DetailActivity.class);
         intent.putExtra(SCConstants.KEY_IMAGE, image);
         ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(this, (View)imageView, "ImageDetail");
+                makeSceneTransitionAnimation(this, imageView, "ImageDetail");
         startActivity(intent, options.toBundle());
     }
 }
