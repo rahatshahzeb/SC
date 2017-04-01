@@ -12,7 +12,7 @@ import retrofit2.http.Query;
 public class NetworkService {
 
     private static String BASE_URL = "https://api.gettyimages.com:443/v3/";
-    public final static String API_KEY = "4x3mqfykgft2uj2zynnw4b9w"; //cp2dhxm3jtcv4tqvtunttqza
+    public final static String API_KEY = "tdbcme3b79r59gdsa8mktgch"; //cp2dhxm3jtcv4tqvtunttqza
 
     public interface SCNetworkAPI {
 

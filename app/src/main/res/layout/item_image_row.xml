@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_margin="10dp"
+    card_view:cardUseCompatPadding="true"
     card_view:cardCornerRadius="4dp">
 
     <RelativeLayout
@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="250dp"
+            android:transitionName="ImageDetail"
             android:scaleType="centerCrop" />
 
         <LinearLayout
@@ -42,6 +43,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:text="Title"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
@@ -52,6 +55,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:text="Caption"
+                android:maxLines="2"
+                android:ellipsize="end"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
 

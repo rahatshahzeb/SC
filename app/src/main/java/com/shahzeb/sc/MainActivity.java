@@ -1,11 +1,18 @@
 package com.shahzeb.sc;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -19,22 +26,28 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends BaseActivity implements MainView, SwipeRefreshLayout.OnRefreshListener{
+public class MainActivity extends BaseActivity implements MainView,
+        SwipeRefreshLayout.OnRefreshListener,
+        SearchView.OnQueryTextListener,
+        ImageListAdapter.ImageListAdapterListener{
 
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.progress_bar)
-    ProgressBar progress_bar;
+    ProgressBar progressBar;
+
+    private SearchView searchView;
+    private MenuItem menuItem;
 
     private MainPresenter presenter;
-
+    private String phrase = null;
     private int page = 1;
-    private boolean mLoading = true;
-    private int mPastVisiblesItems;
-    private int mVisibleItemCount;
-    private int mTotalItemCount;
+    private boolean isLoading = true;
+    private int pastVisiblesItems;
+    private int visibleItemCount;
+    private int totalItemCount;
 
     private RecyclerView.OnScrollListener recyclerViewScrollListener;
 
@@ -68,14 +81,14 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 if (dy > 0) { //check for scroll down
-                    mVisibleItemCount = layoutManager.getChildCount();
-                    mTotalItemCount = layoutManager.getItemCount();
-                    mPastVisiblesItems = layoutManager.findFirstVisibleItemPosition();
-                    if (mLoading) {
-                        if ((mVisibleItemCount + mPastVisiblesItems) >= mTotalItemCount) {
-                            mLoading = false;
+                    visibleItemCount = layoutManager.getChildCount();
+                    totalItemCount = layoutManager.getItemCount();
+                    pastVisiblesItems = layoutManager.findFirstVisibleItemPosition();
+                    if (isLoading) {
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                            isLoading = false;
 
-                            presenter.onResume(page, SCConstants.PAGE_SIZE, "");
+                            presenter.onResume(page, SCConstants.PAGE_SIZE, phrase);
 
                             populateDummyContent();
                             setAdapter();
@@ -84,6 +97,17 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
                 }
             }
         };
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options_menu, menu);
+        menuItem = menu.findItem(R.id.action_search);
+        searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(this);
+        return true;
     }
 
     public void setAdapter() {
@@ -103,10 +127,6 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
         page++;
     }
 
-    public void previousPage() {
-        page--;
-    }
-
     public void clearImageList() {
         imageList.clear();
     }
@@ -118,16 +138,17 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
     }
 
     public void removeDummyContent() {
-        int size = imageList.size();
-        for (int i = size - 1; i > size - SCConstants.PAGE_SIZE - 1; i--) {
-            imageList.remove(imageList.size() - 1);
+        if (imageList.size() > 0) {
+            for (int i = 0; i < SCConstants.PAGE_SIZE; i++) {
+                imageList.remove(imageList.size() - 1);
+            }
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        presenter.onResume(page, SCConstants.PAGE_SIZE, "");
+        presenter.onResume(page, SCConstants.PAGE_SIZE, phrase);
 
         populateDummyContent();
         setAdapter();
@@ -141,17 +162,18 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
 
     @Override
     public void showProgress() {
-        progress_bar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideProgress() {
         swipeRefreshLayout.setRefreshing(false);
-        progress_bar.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
     public void setItems(SearchImageResponse searchImageResponse) {
+        isLoading = true;
         removeDummyContent();
         imageList.addAll(searchImageResponse.images);
         nextPage();
@@ -166,7 +188,7 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
 
     @Override
     public void callFailed() {
-        previousPage();
+        isLoading = true;
 
         removeDummyContent();
         setAdapter();
@@ -174,13 +196,47 @@ public class MainActivity extends BaseActivity implements MainView, SwipeRefresh
 
     @Override
     public void onRefresh() {
+        isLoading = true;
         swipeRefreshLayout.setRefreshing(true);
         resetPage();
         clearImageList();
 
-        presenter.onResume(page, SCConstants.PAGE_SIZE, "");
+        presenter.onResume(page, SCConstants.PAGE_SIZE, phrase);
 
         populateDummyContent();
         setAdapter();
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        menuItem.collapseActionView();
+        isLoading = true;
+        resetPage();
+        clearImageList();
+
+        phrase = query;
+        presenter.onResume(page, SCConstants.PAGE_SIZE, phrase);
+
+        populateDummyContent();
+        setAdapter();
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        return false;
+    }
+
+    @Override
+    public void onItemClick(ImageView imageView, Image image) {
+        navigateDetailActivity(imageView, image);
+    }
+
+    public void navigateDetailActivity(ImageView imageView, Image image) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra(SCConstants.KEY_IMAGE, image);
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(this, (View)imageView, "ImageDetail");
+        startActivity(intent, options.toBundle());
     }
 }
